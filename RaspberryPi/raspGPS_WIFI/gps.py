@@ -4,10 +4,12 @@ import string
 import pynmea2
 import asyncio
 import websockets
+import requests
+import json
 
 temp = 0
 gps = ""
-
+"""
 async def hello():
     uri = "wss://echo.websocket.org"
     async with websockets.connect(uri) as websocket:
@@ -18,6 +20,19 @@ async def hello():
 
         greeting = await websocket.recv()
         print(f"< {greeting}")
+"""
+
+
+# TODO: implement async
+def sendData():
+    URL = "http://34.64.124.225/test"
+    data = {"petId":gps}
+    headers = {"Content-Type":"application/json"}
+    res = requests.post(URL, headers=headers, data=json.dumps(data))
+    recv = res.json()
+    print("> Sent\t\t" + gps)
+    print("< " + recv["msg"])
+    print()
 
 while True:
     port="/dev/ttyAMA0"
@@ -32,5 +47,6 @@ while True:
         newmsg=pynmea2.parse(newdata)
         lat=newmsg.latitude
         lng=newmsg.longitude
-        gps = "Latitude= " + str(lat) + " and Longitude " + str(lng)
-        asyncio.get_event_loop().run_until_complete(hello())
+        gps = "Latitude = " + str(lat) +'\t'+ "Longitude = " + str(lng)
+        sendData()
+        #asyncio.get_event_loop().run_until_complete(sendData())
