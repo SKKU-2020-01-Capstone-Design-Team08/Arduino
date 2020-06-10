@@ -10,3 +10,7 @@ res = requests.post(URL, headers=headers, data=json.dumps(data))
 print(res.status_code)
 #print(res.text)
 print(res.json())
+
+
+
+URL = 'http://34.64.124.225/test

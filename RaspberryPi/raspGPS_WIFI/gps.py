@@ -1,5 +1,5 @@
 import serial
-import time
+import time as t
 import string
 import pynmea2
 import asyncio
@@ -7,8 +7,10 @@ import websockets
 import requests
 import json
 
-temp = 0
-gps = ""
+lat = ""
+lon = ""
+time = ""
+date = ""
 """
 async def hello():
     uri = "wss://echo.websocket.org"
@@ -22,16 +24,23 @@ async def hello():
         print(f"< {greeting}")
 """
 
-
 # TODO: implement async
 def sendData():
-    URL = "http://34.64.124.225/test"
-    data = {"petId":gps}
-    headers = {"Content-Type":"application/json"}
-    res = requests.post(URL, headers=headers, data=json.dumps(data))
-    recv = res.json()
-    print("> Sent\t\t" + gps)
-    print("< " + recv["msg"])
+    URL = 'http://34.64.124.225/set-location'
+    PARAMS ={   
+                "wifi_mac":"b8:27:eb:d7:db:38",
+                "longitude": str(lon),
+                "latitude": str(lat),
+                "time":str(date) + " " + str(time)
+            }
+    HEADERS ={"Content-Type":"application/json"}
+    res = requests.get(url=URL,  params = PARAMS)
+    
+    print(res.url)
+    print(res.text)
+    #recv = res.json()
+    print("> Sent\t\t" + str(time))
+    print("< " + str(res))
     print()
 
 while True:
@@ -42,11 +51,15 @@ while True:
         temp += 1
         continue   
     newdata=ser.readline().decode()
+    #print(newdata)
 
     if newdata[0:6] == '$GPRMC':
         newmsg=pynmea2.parse(newdata)
+        date=newmsg.datestamp
+        time=newmsg.timestamp
         lat=newmsg.latitude
-        lng=newmsg.longitude
-        gps = "Latitude = " + str(lat) +'\t'+ "Longitude = " + str(lng)
+        lon=newmsg.longitude
         sendData()
+        t.sleep(10)
         #asyncio.get_event_loop().run_until_complete(sendData())
+
